@@ -1,44 +1,40 @@
 const SERVER_URL = 'http://localhost:8080/api/v1/';
 
-
-document.getElementById('form-joke').addEventListener('submit', getJoke);
-document.getElementById('form-joke2').addEventListener('submit', getJokeWithRateLimit);
+document.getElementById('form-mealplan').addEventListener('submit', getMealPlan);
+document.getElementById('form-mealplan-limited').addEventListener('submit', getMealPlanWithRateLimit);
 document.getElementById('form-answer').addEventListener('submit', getInfo);
 
-async function getJoke(event) {
-  // Prevent the form from reloading the page.
-  event.preventDefault();
+async function getMealPlan(event) {
+  event.preventDefault(); // Prevent the form from reloading the page.
 
-  const URL = `${SERVER_URL}joke?about= + ${document.getElementById('about').value}`
+  const URL = `${SERVER_URL}mealplan?details=${document.getElementById('details').value}`;
   const spinner = document.getElementById('spinner1');
   const result = document.getElementById('result');
   result.style.color = "black";
 
   try {
     spinner.style.display = "block";
-    const response = await fetch(URL).then(handleHttpErrors)
+    const response = await fetch(URL).then(handleHttpErrors);
     document.getElementById('result').innerText = response.answer;
   } catch (e) {
     result.style.color = "red";
     result.innerText = e.message;
-  }
-  finally {
+  } finally {
     spinner.style.display = "none";
   }
 }
 
-async function getJokeWithRateLimit(event) {
-  // Prevent the form from reloading the page.
-  event.preventDefault();
+async function getMealPlanWithRateLimit(event) {
+  event.preventDefault(); // Prevent the form from reloading the page.
 
-  const URL = `${SERVER_URL}jokelimited?about= + ${document.getElementById('about2').value}`
+  const URL = `${SERVER_URL}mealplanlimited?details=${document.getElementById('details2').value}`;
   const result2 = document.getElementById('result2');
   const spinner2 = document.getElementById('spinner2');
   result2.style.color = "black";
-  result2.innerText = ""
+  result2.innerText = "";
   try {
     spinner2.style.display = "block";
-    const response = await fetch(URL).then(handleHttpErrors)
+    const response = await fetch(URL).then(handleHttpErrors);
     document.getElementById('result2').innerText = response.answer;
   } catch (e) {
     result2.style.color = "red";
@@ -49,18 +45,17 @@ async function getJokeWithRateLimit(event) {
 }
 
 async function getInfo(event) {
-  // Prevent the form from reloading the page.
-  event.preventDefault();
+  event.preventDefault(); // Prevent the form from reloading the page.
 
-  const URL = `${SERVER_URL}owninfo?question= + ${document.getElementById('the-question').value}`
+  const URL = `${SERVER_URL}info?question=${document.getElementById('the-question').value}`;
   const spinner = document.getElementById('spinner3');
   const result3 = document.getElementById('result3');
-  result3.innerText = ""
+  result3.innerText = "";
   result3.style.color = "black";
   try {
     spinner.style.display = "block";
-    const reply = await fetch(URL).then(handleHttpErrors)
-    document.getElementById('result3').innerHTML = convertToLink(reply.answer)
+    const reply = await fetch(URL).then(handleHttpErrors);
+    document.getElementById('result3').innerHTML = convertToLink(reply.answer);
   } catch (e) {
     result3.style.color = "red";
     result3.innerText = e.message;
@@ -70,11 +65,8 @@ async function getInfo(event) {
 
   function convertToLink(str) {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    return str.replace(urlRegex, function(match) {
-      if (match.endsWith('.')) {
-        match = match.slice(0, -1); // Remove the trailing dot
-      }
-      return `<a href="${match}" target="_blank">${match}</a>`;
+    return str.replace(urlRegex, function(url) {
+      return url.endsWith('.') ? `<a href="${url.slice(0, -1)}" target="_blank">${url.slice(0, -1)}</a>` : `<a href="${url}" target="_blank">${url}</a>`;
     });
   }
 }
@@ -82,8 +74,8 @@ async function getInfo(event) {
 async function handleHttpErrors(res) {
   if (!res.ok) {
     const errorResponse = await res.json();
-    const msg = errorResponse.message ? errorResponse.message : "No error details provided"
-    throw new Error(msg)
+    const msg = errorResponse.message ? errorResponse.message : "No error details provided";
+    throw new Error(msg);
   }
-  return res.json()
+  return res.json();
 }

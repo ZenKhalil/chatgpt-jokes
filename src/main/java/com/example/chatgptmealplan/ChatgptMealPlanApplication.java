@@ -1,13 +1,13 @@
-package com.example.chatgptjokes;
+package com.example.chatgptmealplan;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ChatgptJokesApplication {
+public class ChatgptMealPlanApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ChatgptJokesApplication.class, args);
+		SpringApplication.run(ChatgptMealPlanApplication.class, args);
 	}
 
 }

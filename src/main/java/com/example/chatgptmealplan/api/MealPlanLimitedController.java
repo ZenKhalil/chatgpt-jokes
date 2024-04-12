@@ -1,7 +1,7 @@
-package com.example.chatgptjokes.api;
+package com.example.chatgptmealplan.api;
 
-import com.example.chatgptjokes.dtos.MyResponse;
-import com.example.chatgptjokes.service.OpenAiService;
+import com.example.chatgptmealplan.dtos.MyResponse;
+import com.example.chatgptmealplan.service.OpenAiService;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
@@ -16,12 +16,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This class handles fetching a joke via the ChatGPT API, but is IP-rate limited.
+ * This class handles fetching personalized meal plans via the ChatGPT API, but is IP-rate limited.
  */
 @RestController
-@RequestMapping("/api/v1/jokelimited")
+@RequestMapping("/api/v1/mealplanlimited")
 @CrossOrigin(origins = "*")
-public class JokeLimitedController {
+public class MealPlanLimitedController {
 
   @Value("${app.bucket_capacity}")
   private int BUCKET_CAPACITY;
@@ -40,8 +40,8 @@ public class JokeLimitedController {
    * The controller called from the browser client.
    * @param service
    */
-  public JokeLimitedController(OpenAiService service) {
-    this.service=service;
+  public MealPlanLimitedController(OpenAiService service) {
+    this.service = service;
   }
 
   /**
@@ -54,7 +54,7 @@ public class JokeLimitedController {
   }
 
   /**
-   * Returns an existing bucket via ket or creates a new one.
+   * Returns an existing bucket via key or creates a new one.
    * @param key the IP address
    * @return bucket
    */
@@ -63,24 +63,24 @@ public class JokeLimitedController {
   }
 
   /**
-   * Handles the request from the browser.
-   * @param about about contains the input that ChatGPT uses to make a joke about.
+   * Handles the request from the browser to generate a meal plan with rate limiting.
+   * @param details contains the input that ChatGPT uses to create the meal plan.
    * @param request the current HTTP request used
    * @return the response from ChatGPT.
    */
   @GetMapping()
-  public MyResponse getJokeLimited(@RequestParam String about, HttpServletRequest request) {
+  public MyResponse getMealPlanLimited(@RequestParam String details, HttpServletRequest request) {
 
     // Get the IP of the client.
     String ip = request.getRemoteAddr();
     // Get or create the bucket for the given IP/key.
     Bucket bucket = getBucket(ip);
-    // Does the request adhere to the IP-rate  limitations?
+    // Check if the request adheres to the IP-rate limitations.
     if (!bucket.tryConsume(1)) {
       // If not, tell the client "Too many requests".
       throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Too many requests, try again later");
     }
-    // Otherwise request a joke and return the response.
-    return service.makeRequest(about, JokeController.SYSTEM_MESSAGE);
+    // Otherwise request the meal plan and return the response.
+    return service.makeRequest(details, MealPlanController.SYSTEM_MESSAGE);
   }
 }

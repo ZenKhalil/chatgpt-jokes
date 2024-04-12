@@ -1,4 +1,4 @@
-package com.example.chatgptjokes.dtos;
+package com.example.chatgptmealplan.dtos;
 
 import lombok.Getter;
 import lombok.Setter;
