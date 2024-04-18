@@ -1,28 +1,64 @@
 const SERVER_URL = 'http://localhost:8080/api/v1/';
 
-document.getElementById('form-mealplan').addEventListener('submit', getMealPlan);
-document.getElementById('form-mealplan-limited').addEventListener('submit', getMealPlanWithRateLimit);
-document.getElementById('form-answer').addEventListener('submit', getInfo);
+document.addEventListener('DOMContentLoaded', function() {
+  const formMealPlan = document.getElementById('form-mealplan');
+  const formMealPlanLimited = document.getElementById('form-mealplan-limited');
+  const formAnswer = document.getElementById('form-answer');
+
+  if (formMealPlan) {
+    formMealPlan.addEventListener('submit', getMealPlan);
+  }
+  if (formMealPlanLimited) {
+    formMealPlanLimited.addEventListener('submit', getMealPlanWithRateLimit);
+  }
+  if (formAnswer) {
+    formAnswer.addEventListener('submit', getInfo);
+  } 
+});
 
 async function getMealPlan(event) {
-  event.preventDefault(); // Prevent the form from reloading the page.
+  event.preventDefault();
 
-  const URL = `${SERVER_URL}mealplan?details=${document.getElementById('details').value}`;
+  const age = document.getElementById('age').value;
+  const weight = document.getElementById('weight').value;
+  const height = document.getElementById('height').value;
+  const gender = document.getElementById('gender').value;
+  const activityLevel = document.getElementById('activityLevel').value;
+  const userDetails = `age=${age},weight=${weight},height=${height},gender=${gender},activityLevel=${activityLevel}`;
+
+  const URL = `${SERVER_URL}mealplan?details=${encodeURIComponent(userDetails)}`;
   const spinner = document.getElementById('spinner1');
   const result = document.getElementById('result');
   result.style.color = "black";
 
   try {
     spinner.style.display = "block";
-    const response = await fetch(URL).then(handleHttpErrors);
-    document.getElementById('result').innerText = response.answer;
+    const response = await fetch(URL);
+    const data = await handleHttpErrors(response);
+
+    // Ensure we have mealPlans and caloricNeeds data in the response
+    if (data && data.mealPlans && data.caloricNeeds) {
+      const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      let mealPlanText = `Based on your information, you need around ${data.caloricNeeds} calories per day. Here is your weekly meal plan:\n\n`;
+
+      // Loop through each day and append the meal plan for that day
+      data.mealPlans.forEach((plan, index) => {
+        mealPlanText += `**${daysOfWeek[index]} Meal Plan:**\n\n${plan}\n\n`;
+      });
+
+      result.innerText = mealPlanText;
+    } else {
+      throw new Error('Invalid data format received from the server.');
+    }
   } catch (e) {
+    console.error(e);
     result.style.color = "red";
     result.innerText = e.message;
   } finally {
     spinner.style.display = "none";
   }
 }
+
 
 async function getMealPlanWithRateLimit(event) {
   event.preventDefault(); // Prevent the form from reloading the page.

@@ -9,114 +9,185 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+
 import java.net.URI;
-
-/*
-This code utilizes WebClient along with several other classes from org.springframework.web.reactive.
-However, the code is NOT reactive due to the use of the block() method, which bridges the reactive code (WebClient)
-to our imperative code (the way we have used Spring Boot up until now).
-
-You will not truly benefit from WebClient unless you need to make several external requests in parallel.
-Additionally, the WebClient API is very clean, so if you are familiar with HTTP, it should be easy to
-understand what's going on in this code.
-*/
+import java.util.LinkedHashMap;
 
 @Service
 public class OpenAiService {
-
   public static final Logger logger = LoggerFactory.getLogger(OpenAiService.class);
 
-  @Value("${app.api-key}")
-  private String API_KEY;
-
-  //See here for a decent explanation of the parameters send to the API via the requestBody
-  //https://platform.openai.com/docs/api-reference/completions/create
-
-  @Value("${app.url}")
-  public String URL;
-
-  @Value("${app.model}")
-  public String MODEL;
-
-  @Value("${app.temperature}")
-  public double TEMPERATURE;
-
-  @Value("${app.max_tokens}")
-  public int MAX_TOKENS;
-
   @Value("${app.frequency_penalty}")
-  public double FREQUENCY_PENALTY;
+  private double frequency_penalty;
 
   @Value("${app.presence_penalty}")
-  public double PRESENCE_PENALTY;
+  private double presence_penalty;
+
+  @Value("${app.api-key}")
+  private String apiKey;
+
+  @Value("${app.url}")
+  private String apiUrl;
+
+  @Value("${app.model}")
+  private String model;
+
+  @Value("${app.temperature}")
+  private double temperature;
+
+  @Value("${app.max_tokens}")
+  private int maxTokens;
+
+  @Value("${app.frequency_penalty}")
+  private double frequencyPenalty;
+
+  @Value("${app.presence_penalty}")
+  private double presencePenalty;
 
   @Value("${app.top_p}")
-  public double TOP_P;
+  private double topP;
 
-  private WebClient client;
+  private final WebClient client = WebClient.create();
 
-  public OpenAiService() {
-    this.client = WebClient.create();
+
+  public ResponseEntity<Map<String, Object>> getWeeklyMealPlan(String userDetails) {
+
+    logger.info("User details received: {}", userDetails);
+    int caloricNeeds = calculateCaloricNeeds(userDetails);
+    logger.info("Calculated caloric needs: {}", caloricNeeds);
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("caloricNeeds", caloricNeeds);
+    List<String> plans = new ArrayList<>();
+
+    String[] daysOfWeek = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+    for (String day : daysOfWeek) {
+      String prompt = String.format("Provide a detailed meal plan for %s that includes calorie counts for a person who needs %d calories daily. Include breakfast, lunch, dinner, and snacks. Do not repeat meals from other days.", day, caloricNeeds);
+      logger.info("Generated prompt for {}: {}", day, prompt);
+      MyResponse dailyMealPlanResponse = makeRequest(prompt, "Generate a meal plan");
+
+      if (dailyMealPlanResponse != null && dailyMealPlanResponse.getMessage() != null) {
+        plans.add(dailyMealPlanResponse.getMessage());
+      } else {
+        logger.error("Failed to retrieve the meal plan for {}", day);
+        return ResponseEntity.internalServerError().body(Map.of("error", "Failed to retrieve the meal plan for " + day));
+      }
+    }
+
+    response.put("mealPlans", plans);
+    return ResponseEntity.ok(response);
   }
-  //Use this constructor for testing, to inject a mock client
-  public OpenAiService(WebClient client) {
-    this.client = client;
+
+  private int calculateCaloricNeeds(String userDetails) {
+    Map<String, String> userDetailMap = parseUserDetails(userDetails);
+    int age = Integer.parseInt(userDetailMap.get("age"));
+    int height = Integer.parseInt(userDetailMap.get("height"));
+    int weight = Integer.parseInt(userDetailMap.get("weight"));
+    String gender = userDetailMap.get("gender");
+    String activityLevel = userDetailMap.get("activityLevel");
+
+    int bmr = calculateBMR(weight, height, age, gender);
+    return calculateTotalCalories(bmr, activityLevel);
   }
 
-  public MyResponse makeRequest(String userPrompt, String _systemMessage) {
+  private int calculateBMR(int weight, int height, int age, String gender) {
+    if ("male".equalsIgnoreCase(gender)) {
+      return (int) (10 * weight + 6.25 * height - 5 * age + 5);
+    } else {
+      return (int) (10 * weight + 6.25 * height - 5 * age - 161);
+    }
+  }
 
-    ChatCompletionRequest requestDto = new ChatCompletionRequest();
-    requestDto.setModel(MODEL);
-    requestDto.setTemperature(TEMPERATURE);
-    requestDto.setMax_tokens(MAX_TOKENS);
-    requestDto.setTop_p(TOP_P);
-    requestDto.setFrequency_penalty(FREQUENCY_PENALTY);
-    requestDto.setPresence_penalty(PRESENCE_PENALTY);
-    requestDto.getMessages().add(new ChatCompletionRequest.Message("system", _systemMessage));
+  private int calculateTotalCalories(int bmr, String activityLevel) {
+    switch (activityLevel.toLowerCase()) {
+      case "sedentary":
+        return (int) (bmr * 1.2);
+      case "lightly active":
+        return (int) (bmr * 1.375);
+      case "moderately active":
+        return (int) (bmr * 1.55);
+      case "very active":
+        return (int) (bmr * 1.725);
+      case "extra active":
+        return (int) (bmr * 1.9);
+      default:
+        return bmr;
+    }
+  }
+
+  private Map<String, String> parseUserDetails(String userDetails) {
+    Map<String, String> detailsMap = new LinkedHashMap<>();
+    String[] parts = userDetails.split(",");
+    for (String part : parts) {
+      String[] keyValue = part.split("=");
+      if (keyValue.length == 2) {
+        detailsMap.put(keyValue[0], keyValue[1]);
+      } else {
+        logger.error("Invalid user detail format: {}", part);
+      }
+    }
+    return detailsMap;
+  }
+
+  public MyResponse makeRequest(String userPrompt, String systemMessage) {
+    ChatCompletionRequest requestDto = new ChatCompletionRequest(
+            model, temperature, maxTokens, topP, frequency_penalty, presence_penalty);
+    requestDto.getMessages().add(new ChatCompletionRequest.Message("system", systemMessage));
     requestDto.getMessages().add(new ChatCompletionRequest.Message("user", userPrompt));
 
     ObjectMapper mapper = new ObjectMapper();
-    String json = "";
-    String err =  null;
+    String json;
     try {
       json = mapper.writeValueAsString(requestDto);
-      System.out.println(json);
-      ChatCompletionResponse response = client.post()
-              .uri(new URI(URL))
-              .header("Authorization", "Bearer " + API_KEY)
+      logger.info("Request JSON: {}", json);
+
+      ResponseEntity<String> responseEntity = client.post()
+              .uri(new URI(apiUrl))
+              .header("Authorization", "Bearer " + apiKey)
               .contentType(MediaType.APPLICATION_JSON)
               .accept(MediaType.APPLICATION_JSON)
               .body(BodyInserters.fromValue(json))
               .retrieve()
-              .bodyToMono(ChatCompletionResponse.class)
+              .toEntity(String.class)
               .block();
-      String responseMsg = response.getChoices().get(0).getMessage().getContent();
-      int tokensUsed = response.getUsage().getTotal_tokens();
-      System.out.print("Tokens used: " + tokensUsed);
-      System.out.print(". Cost ($0.0015 / 1K tokens) : $" + String.format("%6f",(tokensUsed * 0.0015 / 1000)));
-      System.out.println(". For 1$, this is the amount of similar requests you can make: " + Math.round(1/(tokensUsed * 0.0015 / 1000)));
-      return new MyResponse(responseMsg);
-    }
-    catch (WebClientResponseException e){
-      //This is how you can get the status code and message reported back by the remote API
-      logger.error("Error response status code: " + e.getRawStatusCode());
-      logger.error("Error response body: " + e.getResponseBodyAsString());
-      logger.error("WebClientResponseException", e);
-      err = "Internal Server Error, due to a failed request to external service. You could try again" +
-              "( While you develop, make sure to consult the detailed error message on your backend)";
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, err);
-    }
-    catch (Exception e) {
-      logger.error("Exception", e);
-      err = "Internal Server Error - You could try again" +
-              "( While you develop, make sure to consult the detailed error message on your backend)";
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, err);
+
+      String responseBody = responseEntity.getBody();
+      logger.info("API Response Body: {}", responseBody);
+
+      if (responseEntity.getStatusCode().is2xxSuccessful() && responseBody != null) {
+        ChatCompletionResponse response = mapper.readValue(responseBody, ChatCompletionResponse.class);
+        int tokensUsed = response.getUsage().getTotal_tokens();
+        double costPerThousandTokens = 0.0015;  // Adjust as necessary
+        double cost = (tokensUsed * costPerThousandTokens) / 1000;
+
+        logger.info("Tokens used for this request: {}", tokensUsed);
+        logger.info("Estimated cost for this request: ${}", String.format("%.6f", cost));
+
+        String responseMsg = response.getChoices().get(0).getMessage().getContent();
+        return new MyResponse(responseMsg, tokensUsed, cost);
+      } else {
+        logger.error("Non-successful response status code: {}", responseEntity.getStatusCode());
+        logger.error("Response body: {}", responseBody);
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error processing the OpenAI API request: " + responseBody);
+      }
+    } catch (WebClientResponseException e) {
+      logger.error("WebClient response status code: {}", e.getStatusCode());
+      logger.error("WebClient response body: {}", e.getResponseBodyAsString(), e);
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "WebClient error during the OpenAI API request", e);
+    } catch (Exception e) {
+      logger.error("Exception during the OpenAI API request", e);
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Exception in processing the OpenAI API request", e);
     }
   }
 }

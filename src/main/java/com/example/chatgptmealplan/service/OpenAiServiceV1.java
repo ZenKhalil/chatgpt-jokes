@@ -50,35 +50,35 @@ public class OpenAiServiceV1 {
   @Value("${app.presence_penalty}")
   public double PRESENCE_PENALTY;
 
-  public MyResponse makeRequest(String userPrompt, String _systemMessage) {
+  public MyResponse makeRequest(String userPrompt, String systemMessage) {
     WebClient client = WebClient.create();
 
     Map<String, Object> body = new HashMap<>();
-
     body.put("model", MODEL);
-    List<Map<String, String>> messages = new ArrayList<>();
-
-    Map<String, String> systemMessage = new HashMap<>();
-    systemMessage.put("role", "system");
-    systemMessage.put("content", _systemMessage);
-    messages.add(systemMessage);
-
-    Map<String, String> userMessage = new HashMap<>();
-    userMessage.put("role", "user");
-    userMessage.put("content", userPrompt);
-    messages.add(userMessage);
-    body.put("messages", messages);
     body.put("temperature", TEMPERATURE);
     body.put("max_tokens", MAX_TOKENS);
     body.put("top_p", 1);
     body.put("frequency_penalty", FREQUENCY_PENALTY);
     body.put("presence_penalty", PRESENCE_PENALTY);
+
+    List<Map<String, String>> messages = new ArrayList<>();
+    Map<String, String> systemMessageMap = new HashMap<>();
+    systemMessageMap.put("role", "system");
+    systemMessageMap.put("content", systemMessage);
+    messages.add(systemMessageMap);
+
+    Map<String, String> userMessageMap = new HashMap<>();
+    userMessageMap.put("role", "user");
+    userMessageMap.put("content", userPrompt);
+    messages.add(userMessageMap);
+
+    body.put("messages", messages);
+
     ObjectMapper mapper = new ObjectMapper();
     String json = "";
 
     try {
       json = mapper.writeValueAsString(body);
-      System.out.println(json);
       ChatCompletionResponse response = client.post()
               .uri(new URI(URL))
               .header("Authorization", "Bearer " + API_KEY)
@@ -88,20 +88,11 @@ public class OpenAiServiceV1 {
               .retrieve()
               .bodyToMono(ChatCompletionResponse.class)
               .block();
-      //System.out.println(response.toString());
-      String responseMsg = response.getChoices().get(0).getMessage().getContent();
-      int tokensUsed = response.getUsage().getTotal_tokens();
-      System.out.print("Tokens used: " + tokensUsed);
-      System.out.print(". Cost ($0.0015 / 1K tokens) : $" + String.format("%6f",(tokensUsed * 0.0015 / 1000)));
-      System.out.println(". For 1$, this is the amount of similar requests you can make: " + Math.round(1/(tokensUsed * 0.0015 / 1000)));
-      return new MyResponse(responseMsg);
-    }
-    catch (Exception e) {
-      System.out.println(e.getMessage());
-      String msg = "Internal Server Error, while processing request. You could try again"+
-                   "( While you develop, make sure to consult the detailed error message on your backend)";
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, msg);
 
+      String responseMsg = response.getChoices().get(0).getMessage().getContent();
+      return new MyResponse(responseMsg);
+    } catch (Exception e) {
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error processing the OpenAI API request.");
     }
   }
 }

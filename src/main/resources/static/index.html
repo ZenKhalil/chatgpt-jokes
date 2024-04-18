@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -13,12 +12,10 @@
     <link rel="stylesheet" href="css/main.css">
     <script defer src="js/main.js"></script>
 </head>
-
 <body>
 
 <div class="container">
     <h2>Open AI Meal Plan Demo</h2>
-
     <p>This Open AI project demonstrates 3 ways to use Open AI's Chat Completion API</p>
     <ol>
         <li>A simple possible example requesting the API for a meal plan, given dietary details.</li>
@@ -26,104 +23,85 @@
         <li>An example on how to feed your own info into the API-request.</li>
     </ol>
     <br>
-    <div class="row">
-        <div class="column text-center">
-            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#infoModal">
-                Important read!
-            </button>
+
+    <!-- Form 1: Get Meal Plan (simple) -->
+    <div class="card m-3">
+        <div class="card-body">
+            <h5 class="card-title">Get Meal Plan (simple)</h5>
+            <form id="form-mealplan" class="container">
+                <!-- User inputs for the meal plan request -->
+                <div class="mb-3">
+                    <label for="age" class="form-label">Age</label>
+                    <input type="number" id="age" class="form-control" placeholder="Enter your age">
+                </div>
+                <div class="mb-3">
+                    <label for="weight" class="form-label">Weight (in kg)</label>
+                    <input type="number" id="weight" class="form-control" placeholder="Enter your weight">
+                </div>
+                <div class="mb-3">
+                    <label for="height" class="form-label">Height (in cm)</label>
+                    <input type="number" id="height" class="form-control" placeholder="Enter your height">
+                </div>
+                <div class="mb-3">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select id="gender" class="form-select">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="activityLevel" class="form-label">Activity Level</label>
+                    <select id="activityLevel" class="form-select">
+                        <option value="sedentary">Sedentary (little or no exercise)</option>
+                        <option value="lightly active">Lightly active (light exercise/sports 1-3 days/week)</option>
+                        <option value="moderately active">Moderately active (moderate exercise/sports 3-5 days/week)</option>
+                        <option value="very active">Very active (hard exercise/sports 6-7 days a week)</option>
+                        <option value="extra active">Extra active (very hard exercise/sports & physical job or 2x training)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" id="btn-get-mealplan">Get Meal Plan</button>
+            </form>
+            <div id="spinner1" class="spinner-border text-success" role="status" style="display:none;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p id="result" class="result"></p>
         </div>
     </div>
-    <div class="container">
 
-        <div class="card m-3">
-            <div class="card-body">
-                <h5 class="card-title">Get Meal Plan (simple)</h5>
-                <form id="form-mealplan" class="container">
-
-                    <div class="row">
-                        <p class="card-text">The simplest possible example, requesting the API for a meal plan, given dietary details.</p>
-                        <label for="details">Details</label> <input type="text" id="details" class="result"
-                                                                    placeholder="Enter dietary details for a meal plan">
-                    </div>
-                    <div class="row mt-3">
-                        <div class="column text-end">
-                            <button type="submit" class="btn btn-primary" id="btn-get-mealplan">Get Meal Plan</button>
-                        </div>
-                    </div>
-                </form>
-                <div id="spinner1" class="spinner-border text-success" role="status"
-                     style="margin-left:1em;border-radius: 50%;display:none;">
-                    <span class="visually-hidden">Loading...</span>
+    <!-- Form 2: Get Meal Plan (with IP-rate limiting) -->
+    <div class="card m-3">
+        <div class="card-body">
+            <h5 class="card-title">Get Meal Plan (with IP-rate limiting)</h5>
+            <form id="form-mealplan-limited" class="container">
+                <!-- Reuse the meal plan request fields -->
+                <div class="mb-3">
+                    <label for="details2" class="form-label">Details</label>
+                    <input type="text" id="details2" class="form-control" placeholder="Enter dietary details for a meal plan">
                 </div>
-                <p id="result" class="result"></p>
-
+                <button type="submit" class="btn btn-primary" id="btn-get-mealplan-limited">Get Meal Plan (with IP-rate limiting)</button>
+            </form>
+            <div id="spinner2" class="spinner-border text-success" role="status" style="display:none;">
+                <span class="visually-hidden">Loading...</span>
             </div>
+            <p id="result2" class="result"></p>
         </div>
+    </div>
 
-
-        <div class="card m-3">
-            <div class="card-body">
-                <h5 class="card-title">Get Meal Plan (with IP-rate limiting)</h5>
-
-                <form id="form-mealplan-limited" class="container">
-
-                    <div class="row">
-                        <p class="card-text">Same as above, but with IP-rate limitation.</p>
-                        <label for="details2">Details</label> <input type="text" id="details2"
-                                                                     placeholder="Enter dietary details for a meal plan">
-                    </div>
-                    <div class="row mt-3">
-                        <div class="column text-end">
-                            <button class="btn btn-primary" id="btn-get-mealplan-limited">Get Meal Plan (with IP-rate limiting)</button>
-                        </div>
-                    </div>
-                </form>
-
-                <div id="spinner2" class="spinner-border text-success" role="status"
-                     style="margin-left:1em;border-radius: 50%;display:none;">
-                    <span class="visually-hidden">Loading...</span>
+    <!-- Form 3: Get Info on How to Use API -->
+    <div class="card m-3">
+        <div class="card-body">
+            <h5 class="card-title">Demonstrates how to feed own info into the API-request</h5>
+            <form id="form-answer" class="container">
+                <div class="mb-3">
+                    <label for="the-question" class="form-label">Question</label>
+                    <textarea id="the-question" class="form-control" rows="3" placeholder="Enter a question related to this ChatGPT example"></textarea>
                 </div>
-
-                <p id="result2" class="result"></p>
+                <button type="submit" class="btn btn-primary" id="btn-get-answer">Get answer</button>
+            </form>
+            <div id="spinner3" class="spinner-border text-success" role="status" style="display:none;">
+                <span class="visually-hidden">Loading...</span>
             </div>
-        </div>
-
-        <div class="card m-3">
-            <div class="card-body">
-                <h5 class="card-title">Demonstrates how to feed own info into the API-request</h5>
-
-                <form id="form-answer">
-                    <div class="row">
-                        <div class="column mb-3">
-
-                            <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#owninfoModal">
-                                How to use this example!
-                            </button>
-                        </div>
-                    </div>
-                    <div class="container">
-
-                        <div class="row">
-                            <label for="the-question">Question </label><textarea cols="100" rows="3" id="the-question"
-                                                                                 placeholder="Enter a question related to this ChatGPT example"></textarea>
-                        </div>
-
-                        <div class="row">
-                            <div class="column text-end mt-3">
-                                <button type="submit" class="btn btn-primary" id="btn-get-answer">Get answer</button>
-                            </div>
-                        </div>
-                        <div id="spinner3" class="spinner-border-lg spinner-border text-success" role="status"
-                             style="margin:1em;border-radius: 50%;display:none;width: 3rem; height: 3rem;">
-                            <span class=" visually-hidden">Loading...</span>
-                        </div>
-
-                    </div>
-                </form>
-                <p id="result3" class="result"></p>
-
-            </div>
+            <p id="result3" class="result"></p>
         </div>
     </div>
 
