@@ -7,3 +7,98 @@
 label {
     font-weight: bold;
 }
+
+/* Add styles to arrange the days horizontally */
+.day-status {
+    position: relative;
+    top: 15px;
+    flex: 1;
+    text-align: center;
+    margin: 0 5px;
+}
+
+.status-icon {
+    margin-left: 5px;
+    display: inline-block;
+}
+
+.spinner {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spinner 0.6s linear infinite;
+}
+
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+}
+
+.checkmark {
+    color: green;
+    /* Use your icon or text for the check mark */
+}
+
+
+.btn-primary {
+    position: relative;
+    top: 19px;
+}
+
+/* Default light mode styles */
+body {
+    background-color: white;
+    color: black;
+}
+
+/* Dark mode styles */
+body.dark-mode {
+    background-color: #121212;
+    color: white;
+}
+
+.dark-mode .card {
+    background-color: #1e1e1e;
+    color: white;
+}
+
+.dark-mode .btn {
+    background-color: #333;
+    color: white;
+}
+
+body.dark-mode {
+    background-color: #121212;
+    color: white;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background-color: #333;
+    color: white;
+    border-color: #444;
+}
+
+body.dark-mode .card {
+    background-color: #1e1e1e;
+    border-color: white;
+}
+
+body.dark-mode .accordion-button {
+    background-color: #333;
+    color: white;
+}
+
+body.dark-mode .accordion-body {
+    background-color: #252525;
+    color: white;
+}
+
+.justify-content-between {
+    position: relative;
+    justify-content: space-between;
+    right: 2%;
+}

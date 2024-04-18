@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Open AI Meal Plan Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
@@ -13,100 +14,173 @@
     <script defer src="js/main.js"></script>
 </head>
 <body>
+<!-- Dark Mode Toggle Button -->
+<button id="theme-toggle" class="btn btn-dark">
+    <span id="theme-toggle-icon" class="bi bi-moon-stars-fill"></span> <!-- Using Bootstrap Icons -->
+</button>
 
-<div class="container">
+<div class="container mt-4">
     <h2>Open AI Meal Plan Demo</h2>
-    <p>This Open AI project demonstrates 3 ways to use Open AI's Chat Completion API</p>
-    <ol>
-        <li>A simple possible example requesting the API for a meal plan, given dietary details.</li>
-        <li>Same example as above, but with IP-rate limiting.</li>
-        <li>An example on how to feed your own info into the API-request.</li>
-    </ol>
-    <br>
+    <p>This Open AI project demonstrates using the Chat Completion API to generate a meal plan based on dietary details.</p>
 
-    <!-- Form 1: Get Meal Plan (simple) -->
-    <div class="card m-3">
+    <!-- Form for Meal Plan Request -->
+    <div class="card mb-3">
+        <div class="card-header">
+            Request Meal Plan
+        </div>
         <div class="card-body">
-            <h5 class="card-title">Get Meal Plan (simple)</h5>
-            <form id="form-mealplan" class="container">
-                <!-- User inputs for the meal plan request -->
-                <div class="mb-3">
-                    <label for="age" class="form-label">Age</label>
-                    <input type="number" id="age" class="form-control" placeholder="Enter your age">
+            <form id="form-mealplan">
+                <div class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <label for="age" class="col-form-label">Age</label>
+                        <input type="number" id="age" class="form-control" placeholder="Enter your age">
+                    </div>
+                    <div class="col-auto">
+                        <label for="weight" class="col-form-label">Weight (kg)</label>
+                        <input type="number" id="weight" class="form-control" placeholder="Enter your weight">
+                    </div>
+                    <div class="col-auto">
+                        <label for="height" class="col-form-label">Height (cm)</label>
+                        <input type="number" id="height" class="form-control" placeholder="Enter your height">
+                    </div>
+                    <div class="col-auto">
+                        <label for="gender" class="col-form-label">Gender</label>
+                        <select id="gender" class="form-select">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <label for="activityLevel" class="col-form-label">Activity Level</label>
+                        <select id="activityLevel" class="form-select">
+                            <option value="sedentary">Sedentary</option>
+                            <option value="lightly active">Lightly active</option>
+                            <option value="moderately active">Moderately active</option>
+                            <option value="very active">Very active</option>
+                            <option value="extra active">Extra active</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button id="submit-btn" type="submit" class="btn btn-primary">Get Meal Plan</button>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="weight" class="form-label">Weight (in kg)</label>
-                    <input type="number" id="weight" class="form-control" placeholder="Enter your weight">
-                </div>
-                <div class="mb-3">
-                    <label for="height" class="form-label">Height (in cm)</label>
-                    <input type="number" id="height" class="form-control" placeholder="Enter your height">
-                </div>
-                <div class="mb-3">
-                    <label for="gender" class="form-label">Gender</label>
-                    <select id="gender" class="form-select">
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="activityLevel" class="form-label">Activity Level</label>
-                    <select id="activityLevel" class="form-select">
-                        <option value="sedentary">Sedentary (little or no exercise)</option>
-                        <option value="lightly active">Lightly active (light exercise/sports 1-3 days/week)</option>
-                        <option value="moderately active">Moderately active (moderate exercise/sports 3-5 days/week)</option>
-                        <option value="very active">Very active (hard exercise/sports 6-7 days a week)</option>
-                        <option value="extra active">Extra active (very hard exercise/sports & physical job or 2x training)</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary" id="btn-get-mealplan">Get Meal Plan</button>
             </form>
-            <div id="spinner1" class="spinner-border text-success" role="status" style="display:none;">
-                <span class="visually-hidden">Loading...</span>
+            <!-- Placeholder for each day's status -->
+            <div id="dayStatuses" class="d-flex justify-content-between">
+                <div id="statusMonday" class="day-status">Monday <span class="status-icon"></span></div>
+                <div id="statusTuesday" class="day-status">Tuesday <span class="status-icon"></span></div>
+                <div id="statusWednesday" class="day-status">Wednesday <span class="status-icon"></span></div>
+                <div id="statusThursday" class="day-status">Thursday <span class="status-icon"></span></div>
+                <div id="statusFriday" class="day-status">Friday <span class="status-icon"></span></div>
+                <div id="statusSaturday" class="day-status">Saturday <span class="status-icon"></span></div>
+                <div id="statusSunday" class="day-status">Sunday <span class="status-icon"></span></div>
             </div>
             <p id="result" class="result"></p>
         </div>
     </div>
 
-    <!-- Form 2: Get Meal Plan (with IP-rate limiting) -->
-    <div class="card m-3">
-        <div class="card-body">
-            <h5 class="card-title">Get Meal Plan (with IP-rate limiting)</h5>
-            <form id="form-mealplan-limited" class="container">
-                <!-- Reuse the meal plan request fields -->
-                <div class="mb-3">
-                    <label for="details2" class="form-label">Details</label>
-                    <input type="text" id="details2" class="form-control" placeholder="Enter dietary details for a meal plan">
+    <!-- Accordion for displaying meal plans -->
+    <div class="accordion" id="mealPlanAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingMonday">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMonday" aria-expanded="false" aria-controls="collapseMonday">
+                    Monday
+                </button>
+            </h2>
+            <div id="collapseMonday" class="accordion-collapse collapse" aria-labelledby="headingMonday" data-bs-parent="#mealPlanAccordion">
+                <div class="accordion-body" id="mealPlanMonday">
+                    <!-- Dynamic meal plan content will be loaded here -->
                 </div>
-                <button type="submit" class="btn btn-primary" id="btn-get-mealplan-limited">Get Meal Plan (with IP-rate limiting)</button>
-            </form>
-            <div id="spinner2" class="spinner-border text-success" role="status" style="display:none;">
-                <span class="visually-hidden">Loading...</span>
             </div>
-            <p id="result2" class="result"></p>
+        </div>
+
+        <!-- Accordion Item for Tuesday -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTuesday">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTuesday" aria-expanded="false" aria-controls="collapseTuesday">
+                    Tuesday
+                </button>
+            </h2>
+            <div id="collapseTuesday" class="accordion-collapse collapse" aria-labelledby="headingTuesday" data-bs-parent="#mealPlanAccordion">
+                <div class="accordion-body" id="mealPlanTuesday">
+                    <!-- Dynamic meal plan content for Tuesday will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Accordion Item for Wednesday -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingWednesday">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWednesday" aria-expanded="false" aria-controls="collapseWednesday">
+                    Wednesday
+                </button>
+            </h2>
+            <div id="collapseWednesday" class="accordion-collapse collapse" aria-labelledby="headingWednesday" data-bs-parent="#mealPlanAccordion">
+                <div class="accordion-body" id="mealPlanWednesday">
+                    <!-- Dynamic meal plan content for Wednesday will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Accordion Item for Thursday -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingThursday">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThursday" aria-expanded="false" aria-controls="collapseThursday">
+                    Thursday
+                </button>
+            </h2>
+            <div id="collapseThursday" class="accordion-collapse collapse" aria-labelledby="headingThursday" data-bs-parent="#mealPlanAccordion">
+                <div class="accordion-body" id="mealPlanThursday">
+                    <!-- Dynamic meal plan content for Thursday will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Accordion Item for Friday -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFriday">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFriday" aria-expanded="false" aria-controls="collapseFriday">
+                    Friday
+                </button>
+            </h2>
+            <div id="collapseFriday" class="accordion-collapse collapse" aria-labelledby="headingFriday" data-bs-parent="#mealPlanAccordion">
+                <div class="accordion-body" id="mealPlanFriday">
+                    <!-- Dynamic meal plan content for Friday will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Accordion Item for Saturday -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingSaturday">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSaturday" aria-expanded="false" aria-controls="collapseSaturday">
+                    Saturday
+                </button>
+            </h2>
+            <div id="collapseSaturday" class="accordion-collapse collapse" aria-labelledby="headingSaturday" data-bs-parent="#mealPlanAccordion">
+                <div class="accordion-body" id="mealPlanSaturday">
+                    <!-- Dynamic meal plan content for Saturday will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Accordion Item for Sunday -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingSunday">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSunday" aria-expanded="false" aria-controls="collapseSunday">
+                    Sunday
+                </button>
+            </h2>
+            <div id="collapseSunday" class="accordion-collapse collapse" aria-labelledby="headingSunday" data-bs-parent="#mealPlanAccordion">
+                <div class="accordion-body" id="mealPlanSunday">
+                    <!-- Dynamic meal plan content for Sunday will be loaded here -->
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- Form 3: Get Info on How to Use API -->
-    <div class="card m-3">
-        <div class="card-body">
-            <h5 class="card-title">Demonstrates how to feed own info into the API-request</h5>
-            <form id="form-answer" class="container">
-                <div class="mb-3">
-                    <label for="the-question" class="form-label">Question</label>
-                    <textarea id="the-question" class="form-control" rows="3" placeholder="Enter a question related to this ChatGPT example"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary" id="btn-get-answer">Get answer</button>
-            </form>
-            <div id="spinner3" class="spinner-border text-success" role="status" style="display:none;">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p id="result3" class="result"></p>
-        </div>
-    </div>
-
-
-    <!-- Modal 1 Disclaimer about Deployment -->
+<!-- Modal 1 Disclaimer about Deployment -->
     <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -169,6 +243,9 @@
         </div>
     </div>
 </div>
+
+<script src="js/main.js"></script>
+
 </body>
 
 </html>
