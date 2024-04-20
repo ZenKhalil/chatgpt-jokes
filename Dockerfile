@@ -8,7 +8,7 @@ WORKDIR /app
 COPY target/chatgpt-meal-plans-0.0.1-SNAPSHOT.jar /app/app.jar
 
 # Make port 8080 available to the world outside this container
-ENV PORT 8080
+EXPOSE 8080
 
-# Run the jar file using shell form to allow variable expansion
-CMD java -Dserver.port=$PORT -jar app.jar
+# Run the jar file
+CMD java -Dserver.port=${PORT:-8080} -jar app.jar
