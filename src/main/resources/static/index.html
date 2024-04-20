@@ -19,9 +19,9 @@
     <span id="theme-toggle-icon" class="bi bi-moon-stars-fill"></span> <!-- Using Bootstrap Icons -->
 </button>
 
-<div class="container mt-4">
-    <h2>Open AI Meal Plan Demo</h2>
-    <p>This Open AI project demonstrates using the Chat Completion API to generate a meal plan based on dietary details.</p>
+<div class="container mt-4 text-center">
+    <h1 class="display-4">Open AI Meal Plan Demo</h1>
+    <p class="lead">Explore how OpenAI's powerful API can tailor daily meal plans based on your dietary preferences.</p>
 
     <!-- Form for Meal Plan Request -->
     <div class="card mb-3">
@@ -30,7 +30,7 @@
         </div>
         <div class="card-body">
             <form id="form-mealplan">
-                <div class="row g-3 align-items-center">
+                <div class="row g-3 align-items-center ms-5">
                     <div class="col-auto">
                         <label for="age" class="col-form-label">Age</label>
                         <input type="number" id="age" class="form-control" placeholder="Enter your age">
@@ -66,7 +66,7 @@
                 </div>
             </form>
             <!-- Placeholder for each day's status -->
-            <div id="dayStatuses" class="d-flex justify-content-between">
+            <div id="dayStatuses" style="display: ruby;">
                 <div id="statusMonday" class="day-status">Monday <span class="status-icon"></span></div>
                 <div id="statusTuesday" class="day-status">Tuesday <span class="status-icon"></span></div>
                 <div id="statusWednesday" class="day-status">Wednesday <span class="status-icon"></span></div>
@@ -243,8 +243,22 @@
         </div>
     </div>
 </div>
-
-<script src="js/main.js"></script>
+<!-- Modal -->
+<div class="modal fade" id="mealPlanReadyModal" tabindex="-1" aria-labelledby="mealPlanReadyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="align-items:center;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mealPlanReadyModalLabel">Meal Plan Ready 🍽️</h5>
+            </div>
+            <div class="modal-body">
+                Your weekly meal plan is ready and can be viewed for each day. Enjoy your meals 💪🏻😄!
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" style="top: 10px">View Meal Plans</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 </body>
 

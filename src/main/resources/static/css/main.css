@@ -22,6 +22,12 @@ label {
     display: inline-block;
 }
 
+#theme-toggle{
+    left: 10px;
+    top: 10px;
+    position: relative;
+}
+
 .spinner {
     display: inline-block;
     width: 1em;
@@ -74,12 +80,10 @@ body.dark-mode {
     color: white;
 }
 
-body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea {
-    background-color: #333;
+body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+    background-color: #3f3f3f;
     color: white;
-    border-color: #444;
+    border-color: #fefefe;
 }
 
 body.dark-mode .card {
@@ -97,8 +101,56 @@ body.dark-mode .accordion-body {
     color: white;
 }
 
-.justify-content-between {
-    position: relative;
-    justify-content: space-between;
-    right: 2%;
+/* main.css */
+h1.display-4 {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    color: #383b3f;
+    /* text-shadow: 2px 2px 4px #6c757d; */
 }
+
+p.lead {
+    font-size: 1.25rem;
+    color: #343a40; /* Bootstrap dark grey */
+}
+
+/* main.css */
+.container.mt-4 {
+    background: linear-gradient(to right, #d5c8e4, #5381dd);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* Dark mode styles */
+body.dark-mode h1.display-4 {
+    color: #0c6ffd;
+    /* text-shadow: 2px 2px 4px #000; */
+}
+
+body.dark-mode p.lead {
+    color: #d6d6d6; /* Lighter grey for better visibility in dark mode */
+}
+
+body.dark-mode .container.mt-4 {
+    background: linear-gradient(to right, #424242, #303030); /* Darker gradient for dark mode */
+    color: #ccc; /* Light grey text for better readability */
+}
+
+.text-center {
+    text-align: center;
+}
+
+.accordion-body {
+    text-align: left;
+}
+
+.d-flex {
+    display: ruby;
+}
+
+.modal.show .modal-dialog {
+    transform: none;
+    top: 215px;
+}
+

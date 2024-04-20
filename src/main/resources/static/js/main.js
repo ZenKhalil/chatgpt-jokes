@@ -49,7 +49,7 @@ async function getMealPlan(event) {
     for (let i = 0; i < daysOfWeek.length - 1; i++) {
       setTimeout(() => {
         setCheckMarkForDay(daysOfWeek[i]);
-      }, (i + 1) * 20000); // Starts from 20 seconds for Monday and increments by 20 seconds each day
+      }, (i + 1) * 20000); // Starts from 20 seconds for Monday and increments by 22 seconds each day
     }
 
     const response = await fetch(URL);
@@ -74,23 +74,50 @@ function displayMealPlans(data, daysOfWeek) {
     const day = daysOfWeek[index];
     const dayElement = document.getElementById(`mealPlan${day}`);
     if (dayElement) {
-      dayElement.innerHTML = plan.replace(/\n/g, '<br>');
+      // Replace Markdown ** with HTML <strong>
+      let formattedPlan = plan.replace(/(\*\*)(.*?)(\*\*)/g, '<strong>$2</strong>');
+      dayElement.innerHTML = `<strong>${day} Meal Plan:</strong><br>${formattedPlan.replace(/\n/g, '<br>')}`;
     }
   });
 }
 
 function setSpinnerForDay(day) {
-const statusElement = document.getElementById(`status${day}`);
-if (statusElement) {
-statusElement.innerHTML = `<span class="status-icon spinner-border spinner-border-sm text-primary" role="status"></span> ${day}`;
-}
+  const statusElement = document.getElementById(`status${day}`);
+  if (statusElement) {
+    statusElement.innerHTML = `<span class="status-icon spinner-border spinner-border-sm text-primary" role="status"></span> ${day}`;
+  }
 }
 
+const daysCompleted = {
+  Monday: false,
+  Tuesday: false,
+  Wednesday: false,
+  Thursday: false,
+  Friday: false,
+  Saturday: false,
+  Sunday: false
+};
+
 function setCheckMarkForDay(day) {
-const statusElement = document.getElementById(`status${day}`);
-if (statusElement) {
-  statusElement.innerHTML = `<span class="status-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3b/Eo_circle_green_checkmark.svg" alt="Check" style="height: 20px; width: 20px;"></span> ${day}`;}
+  const statusElement = document.getElementById(`status${day}`);
+  if (statusElement) {
+    statusElement.innerHTML = `<span class="status-icon"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3b/Eo_circle_green_checkmark.svg" alt="Check" style="height: 20px; width: 20px;"></span> ${day}`;
+    daysCompleted[day] = true; // Mark the day as complete
+
+    // Check if all days are complete before showing the modal
+    const allDaysComplete = Object.values(daysCompleted).every(completed => completed);
+    if (allDaysComplete) {
+      showMealPlanReadyModal();
+    }
+  }
 }
+
+function showMealPlanReadyModal() {
+  // Use Bootstrap's modal method to show the meal plan ready modal
+  const mealPlanReadyModal = new bootstrap.Modal(document.getElementById('mealPlanReadyModal'));
+  mealPlanReadyModal.show();
+}
+
 
 function setErrorForDay(day, errorMessage) {
 const statusElement = document.getElementById(`status${day}`);
@@ -109,8 +136,6 @@ throw new Error(`Network response was not ok. ${response.statusText}`);
 }
 return response.json();
 }
-
-
 
 async function getMealPlanWithRateLimit(event) {
   event.preventDefault(); // Prevent the form from reloading the page.
