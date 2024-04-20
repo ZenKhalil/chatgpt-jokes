@@ -1,4 +1,4 @@
-const SERVER_URL = 'http://localhost:8080/api/v1/';
+const SERVER_URL = window.apiBaseUrl;
 
 document.addEventListener('DOMContentLoaded', function() {
   const formMealPlan = document.getElementById('form-mealplan');
