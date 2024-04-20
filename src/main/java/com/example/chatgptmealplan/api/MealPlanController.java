@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-import static jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle.details;
-
 @RestController
 @RequestMapping("/api/v1/mealplan")
 @CrossOrigin(origins = "*")
