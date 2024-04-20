@@ -2,6 +2,8 @@
 
 This project is an interactive web application that utilizes OpenAI's powerful API to generate personalized meal plans based on the user's dietary preferences and details.
 
+Link to deployed site: https://openai-meal-plan.onrender.com/ 
+
 ## Features
 
 - Generate daily meal plans for a week based on user input.
