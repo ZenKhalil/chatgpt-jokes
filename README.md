@@ -1,40 +1,49 @@
-# ChatGPT Jokes Example
+# OpenAI Meal Plan Generator
 
-Shows how to use the ChatGPT API to make jokes based on the users input.
+This project is an interactive web application that utilizes OpenAI's powerful API to generate personalized meal plans based on the user's dietary preferences and details.
 
-![Image](/doc/openai-jokes.jpg)
+## Features
 
-This project was originally made by my fellow computer science lecturer Lars Mortensen (retired), from the Copenhagen School of Design & Technology.
+- Generate daily meal plans for a week based on user input.
+- Get real-time updates on the meal plan generation process.
+- Dark mode toggle for user preference.
+- Responsive design for desktop and mobile devices.
 
-It consists of a simple Java Spring backend and a browser-based frontend (HTML, CSS and JavaScript) page.
+## Technologies Used
 
-## Backend
-There are 3 different features (controllers) in the backend:
-- [JokeController.java](https://github.com/RonniKahalani/chatgpt-jokes/blob/master/src/main/java/com/example/chatgptjokes/api/JokeController.java)
-- [JokeLimitedController.java](https://github.com/RonniKahalani/chatgpt-jokes/blob/master/src/main/java/com/example/chatgptjokes/api/JokeLimitedController.java)
-- [OwnInfoController.java](https://github.com/RonniKahalani/chatgpt-jokes/blob/master/src/main/java/com/example/chatgptjokes/api/OwnInfoController.java)
+- HTML5
+- CSS3
+- JavaScript
+- Bootstrap 5
+- Java
+- OpenAI API
 
-### JokeController
-Gets ChatGPT to create a joke, by passing an input, telling what the joke should be about.
+## How to Use
 
-### JokeLimitedController
-Does the same as above, but implements an IP-rate limitation (max. number of request in a small timeframe.)
+1. Input your age, weight, height, gender, and activity level.
+2. Click on "Get Meal Plan".
+3. Watch as the application generates your personalized meal plan for each day of the week.
+4. Once all days are processed, a pop-up modal will inform you that your meal plans are ready to be viewed.
 
-### OwnInfoController
-Shows how to make custom responses that the ChatGPT AI has not been trained in.
+## Installation
 
-## Services
-- [OpenAiService](https://github.com/RonniKahalani/chatgpt-jokes/blob/master/src/main/java/com/example/chatgptjokes/service/OpenAiService.java)
-- [OpenAiServiceV1](https://github.com/RonniKahalani/chatgpt-jokes/blob/master/src/main/java/com/example/chatgptjokes/service/OpenAiServiceV1.java)
+To run this project locally:
 
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/zenkhalil/openai-meal-plan.git
+   
+2. Navigate to the project directory:
+cd openai-meal-plan
 
-## Frontend
-- [index.html](https://github.com/RonniKahalani/chatgpt-jokes/blob/master/src/main/resources/static/index.html)
-- [main.css](https://github.com/RonniKahalani/chatgpt-jokes/blob/master/src/main/resources/static/css/main.css)
-- [main.js](https://github.com/RonniKahalani/chatgpt-jokes/blob/master/src/main/resources/static/js/main.js)
+3. Open the index.html file in your browser to view the application.
 
-## Adding an API key
-You have to create a OpenAI account with credits and an API key to run this example successfully.
+## Contribution
+Contributions are welcome! If you have suggestions or want to improve the application:
 
-![Image](/doc/chatgpt-jokes-apikey.jpg)
+## Fork the repository.
+Create a new branch with your features or fixes.
+Submit a pull request.
 
+License
+This project is open-sourced under the MIT License. See the LICENSE file for details.
